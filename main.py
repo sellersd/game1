@@ -34,8 +34,11 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
         # self.surf = pygame.image.load('jet.png').convert()
-        self.surf = pygame.Surface(self.player_size)
-        self.surf.set_colorkey(WHITE, RLEACCEL)
+        self.surf = pygame.image.load('boysprites/Run (1).png').convert()
+        small_image = pygame.transform.scale(self.surf, (20, 40))
+        self.surf = small_image
+        # self.surf = pygame.Surface(self.player_size)
+        self.surf.set_colorkey(BLACK, RLEACCEL)
         # self.surf.fill(BLUE)
         self.rect = self.surf.get_rect()
         self.h_loc = SCREEN_WIDTH // 2 - self.player_width // 2
