@@ -33,7 +33,8 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self):
         super(Player, self).__init__()
-        self.surf = pygame.image.load('jet.png').convert() # .Surface(self.player_size)
+        # self.surf = pygame.image.load('jet.png').convert()
+        self.surf = pygame.Surface(self.player_size)
         self.surf.set_colorkey(WHITE, RLEACCEL)
         # self.surf.fill(BLUE)
         self.rect = self.surf.get_rect()
@@ -64,8 +65,11 @@ class Player(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super(Enemy, self).__init__()
-        self.surf = pygame.image.load('missle.jpg').convert() # .Surface((20, 10))
-        self.surf.set_colorkey(WHITE, RLEACCEL)
+        self.surf = pygame.image.load('zombiesprites/Attack (1).png').convert()
+        small_image = pygame.transform.scale(self.surf, (20, 40))
+        self.surf = small_image
+        # self.surf = pygame.Surface((20, 10))
+        self.surf.set_colorkey(BLACK, RLEACCEL)
         # self.surf.fill(GREEN)
         self.rect = self.surf.get_rect(
             center=(
@@ -75,8 +79,28 @@ class Enemy(pygame.sprite.Sprite):
         )
 
         self.speed = rint(5, 20)
+
     def update(self):
         self.rect.move_ip(-self.speed, 0)
+        if self.rect.right < 0:
+            self.kill()
+
+
+class Cloud(pygame.sprite.Sprite):
+    def __init__(self):
+        super(Cloud, self).__init__()
+        # self.surf = pygame.image.load('cloud.png').convert()
+        self.surf = pygame.Surface((30, 30))
+
+        self.surf.set_colorkey(BLACK, RLEACCEL)
+        self.rect = self.surf.get_rect(
+            center=(rint(SCREEN_WIDTH + 20, SCREEN_WIDTH+100),
+                    rint(0, SCREEN_HEIGHT),
+                    )
+        )
+
+    def update(self):
+        self.rect.move_ip(-5, 0)
         if self.rect.right < 0:
             self.kill()
 
@@ -91,15 +115,22 @@ SCREEN_HEIGHT = 800
 # set up screen
 screen = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
 
+# set up clock for framerate
+clock = pygame.time.Clock()
+
 # custom event for adding enemies
 ADDENEMY = pygame.USEREVENT + 1
 pygame.time.set_timer(ADDENEMY, 250)
+
+ADDCLOUD = pygame.USEREVENT + 2
+pygame.time.set_timer(ADDCLOUD, 1000)
 
 # Create player
 player = Player()
 
 # Create groups of sprites
 enemies = pygame.sprite.Group()
+clouds = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
@@ -121,6 +152,11 @@ while running:
             new_enemy = Enemy()
             enemies.add(new_enemy)
             all_sprites.add(new_enemy)
+        elif event.type == ADDCLOUD:
+            # Create enemy add to sprite groups
+            new_cloud = Cloud()
+            clouds.add(new_cloud)
+            all_sprites.add(new_cloud)
 
     # Update player location based on keys pressed
     pressed_keys = pygame.key.get_pressed()
@@ -128,9 +164,10 @@ while running:
 
     # Update enemy location
     enemies.update()
+    clouds.update()
 
     # Fill background with light black
-    screen.fill((50, 50, 50))
+    screen.fill((135, 206, 150))
 
     # Blit sprites to screen
     # screen.blit(player.surf, player.loc)
@@ -145,5 +182,8 @@ while running:
 
     # Draw window
     pygame.display.flip()
+
+    # Ensure 30 FPS
+    clock.tick(30)
 
 pygame.quit()
